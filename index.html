@@ -1,0 +1,139 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Trading Risk Visualizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="toast" class="toast">Trade details copied!</div>
+  
+  <div class="top-bar">
+    <div class="top-bar-inputs">
+      <div class="input-group">
+        <label>Account ($)</label>
+        <input type="number" id="accountSize" placeholder="10000" value="10000">
+      </div>
+      <div class="input-group" id="riskGroup">
+        <label>Risk (%)</label>
+        <input type="number" id="riskPercent" placeholder="1.0" value="1.0" step="0.1">
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnBasic">Basic Mode</button>
+      <button class="mode-btn" id="btnAdvanced">Advanced Mode</button>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div class="sidebar">
+      <div class="section-header">
+        <h2>Trade Setup</h2>
+        <div class="direction-toggle">
+          <button class="dir-btn buy active" id="btnBuy">BUY</button>
+          <button class="dir-btn sell" id="btnSell">SELL</button>
+        </div>
+      </div>
+
+      <div class="trade-inputs">
+        <div class="input-group">
+          <label>Asset Pair (Contract Size)</label>
+          <select id="assetPair" class="dropdown-trigger">
+            <optgroup label="Forex Majors & Minors">
+              <option value="100000" data-pip-size="0.0001" data-entry-hint="e.g., 1.08500" data-profit-hint="e.g., 150">EUR/USD</option>
+              <option value="100000" data-pip-size="0.0001" data-entry-hint="e.g., 1.26800" data-profit-hint="e.g., 200">GBP/USD</option>
+              <option value="100000" data-pip-size="0.0001" data-entry-hint="e.g., 0.65400" data-profit-hint="e.g., 100">AUD/USD</option>
+              <option value="100000" data-pip-size="0.0001" data-entry-hint="e.g., 1.35200" data-profit-hint="e.g., 150">USD/CAD</option>
+              <option value="100000" data-pip-size="0.0001" data-entry-hint="e.g., 0.88400" data-profit-hint="e.g., 120">USD/CHF</option>
+            </optgroup>
+            <optgroup label="Forex JPY Pairs">
+              <option value="100000" data-pip-size="0.01" data-entry-hint="e.g., 154.50" data-profit-hint="e.g., 150">USD/JPY</option>
+              <option value="100000" data-pip-size="0.01" data-entry-hint="e.g., 163.20" data-profit-hint="e.g., 200">EUR/JPY</option>
+              <option value="100000" data-pip-size="0.01" data-entry-hint="e.g., 192.40" data-profit-hint="e.g., 250">GBP/JPY</option>
+              <option value="100000" data-pip-size="0.01" data-entry-hint="e.g., 175.50" data-profit-hint="e.g., 180" selected>CHF/JPY</option>
+            </optgroup>
+            <optgroup label="Metals & Crypto">
+              <option value="100" data-pip-size="0.1" data-entry-hint="e.g., 2650.00" data-profit-hint="e.g., 300">XAU/USD (Gold)</option>
+              <option value="5000" data-pip-size="0.01" data-entry-hint="e.g., 31.50" data-profit-hint="e.g., 150">XAG/USD (Silver)</option>
+              <option value="1" data-pip-size="1" data-entry-hint="e.g., 65000.00" data-profit-hint="e.g., 500">BTC/USD (Bitcoin)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Entry Price</label>
+          <input type="number" id="entryPrice" placeholder="e.g., 175.50" step="any">
+        </div>
+
+        <div class="input-group basic-only">
+          <label>Planned Profit ($)</label>
+          <input type="number" id="plannedProfit" placeholder="e.g., 180" step="10">
+        </div>
+
+        <div class="input-group basic-only">
+          <label>Target Lot Size</label>
+          <select id="basicLotSelect" class="dropdown-trigger">
+            <option value="0.01">0.01 Lot (Micro)</option>
+            <option value="0.02">0.02 Lot</option>
+            <option value="0.05">0.05 Lot</option>
+            <option value="0.10" selected>0.10 Lot (Mini)</option>
+            <option value="0.20">0.20 Lot</option>
+            <option value="0.50">0.50 Lot</option>
+            <option value="1.00">1.00 Lot (Standard)</option>
+            <option value="2.00">2.00 Lot</option>
+            <option value="5.00">5.00 Lot</option>
+            <option value="10.00">10.00 Lot</option>
+          </select>
+        </div>
+
+        <div class="input-group advanced-only hidden">
+          <label>Stop Loss Price</label>
+          <input type="number" id="slPrice" placeholder="e.g., 174.80" step="any">
+        </div>
+
+        <div class="input-group advanced-only hidden">
+          <label>Take Profit Price</label>
+          <input type="number" id="tpPrice" placeholder="e.g., 176.90" step="any">
+        </div>
+      </div>
+
+      <h2>Trade Metrics</h2>
+      <div class="metrics-grid">
+        <div class="metric-card full-width">
+          <span class="label">Cash Risk / Max Loss ($)</span>
+          <span class="value highlight" id="mCashRisk">$0.00</span>
+        </div>
+        <div class="metric-card">
+          <span class="label">Stop Loss Level</span>
+          <span class="value" id="mSlInfo">--</span>
+        </div>
+        <div class="metric-card">
+          <span class="label">Take Profit Level</span>
+          <span class="value profit" id="mTpInfo">--</span>
+        </div>
+        <div class="metric-card">
+          <span class="label">Lot Size</span>
+          <span class="value highlight" id="mLotSize">0.10</span>
+        </div>
+        <div class="metric-card">
+          <span class="label">R/R Ratio</span>
+          <span class="value" id="mRrRatio">0.00</span>
+        </div>
+        <div class="metric-card full-width">
+          <span class="label">Trip Profit (50% TP Level)</span>
+          <span class="value profit" id="mTripProfit">--</span>
+        </div>
+        <div class="metric-card full-width">
+          <span class="label">Break Even (+2 Pips Buffer)</span>
+          <span class="value" id="mBreakEven">--</span>
+        </div>
+      </div>
+
+      <button id="copyBtn">Copy Trade Details</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
